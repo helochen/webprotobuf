@@ -1,0 +1,5 @@
+package awesomepackage;
+
+message AwesomeMessage{
+	optional string awesomeField  = 1;
+}

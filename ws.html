@@ -1,0 +1,44 @@
+<html>
+	<head></head>
+	<script type="text/javascript" src="reconnecting-websocket.min.js"></script>
+	<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+	
+	<script type="text/javascript" >
+		var url = "ws://127.0.0.1:1024/";
+		var options = {
+			debug:true,
+			reconnectInterval:3000
+		};
+		
+		
+		//var socket = new WebSocket(url);
+		var socket = new ReconnectingWebSocket(url, null, options);
+		
+		socket.onopen = function(){
+			console.log("open");
+		};
+		
+		socket.onclose = function(e){
+			console.log("close");
+		};
+		
+		function sendMsg(){
+			var bytes = new ArrayBuffer(8);
+			var data = new Uint32Array(bytes);
+			for(var i=0; i <data.length;++i){
+				data[i]= 319951120;
+				console.log(i);
+			}
+			socket.send(bytes);
+		}
+	</script>
+	
+	
+	<body>
+		<h2>Im Body</h2>
+		
+		<input value="click" text="click2Send" type="button" onclick="sendMsg()"/>
+		
+	</body>
+
+</html>
