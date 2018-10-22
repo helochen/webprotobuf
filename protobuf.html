@@ -4,7 +4,10 @@
 	<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
 	<script src="node_modules/protobufjs/dist/protobuf.js"></script>
 	<script src="endianMode/bufferHeader.js"></script>
-	
+	<!-- proto_object -->
+	<script src="proto_object_js/awesome.js" type="text/javascript"></script>
+	<script src="proto_object_js/login.js" type="text/javascript"></script>
+
 	<script type="text/javascript" >
 		var url = "ws://127.0.0.1:1024/";
 		var options = {
@@ -12,8 +15,6 @@
 			reconnectInterval:3000
 		};
 		
-		
-		//var socket = new WebSocket(url);
 		var socket = new ReconnectingWebSocket(url, null, options);
 		
 		socket.onopen = function(){
@@ -30,8 +31,8 @@
 			console.log("end........");
 			if(fileReader.readyState == 2){
 				var s_data = new DataView(fileReader.result);
-				console.log(s_data.getUint32(0));
-				console.log(s_data.getUint32(1));
+				console.log(s_data.getInt32(0));
+				console.log(s_data.getInt32(4));
 				for(var i = 0; i < s_data.getUint32(0);++i){
 					console.log(s_data.getUint8(8+i));
 				}
@@ -44,65 +45,29 @@
 			fileReader.readAsArrayBuffer(event.data);
 		}
 		
-		//var protobuf = require("protobufjs/light");
-		
 		function sendMsg(buffer){
 			console.log("buffer:" + buffer);
 			socket.send(buffer);
 		}
-		
-		
-		///////////////////////////////
-		protobuf.load("proto/awesome.proto", function(err, root) {
-			if (err)
-				throw err;
+		var payload = { awesomeField: "test js object" };
 
-			// Obtain a message type
-			var AwesomeMessage = root.lookupType("awesomepackage.AwesomeMessage");
+		var loginInfo = {
+			userName : "chen",
+			passWord : "master1"
+		};
+		var login = new Login();
+		login.login(loginInfo);
 
-			// Exemplary payload
-			var payload = { awesomeField: "AwesomeString" };
-
-			// Verify the payload if necessary (i.e. when possibly incomplete or invalid)
-			var errMsg = AwesomeMessage.verify(payload);
-			if (errMsg)
-				throw Error(errMsg);
-
-			// Create a new message
-			var message = AwesomeMessage.create(payload); // or use .fromObject if conversion is necessary
-
-			// Encode a message to an Uint8Array (browser) or Buffer (node)
-			var buffer = AwesomeMessage.encode(message).finish();
-			// ... do something with buffer
-			var designBytes = new ArrayBuffer(buffer.length + 8);
-			var view = new DataView(designBytes);
-			setCommandAndLength(view , buffer.length + 4 , 10000);
+		function test(){
+			var t =  { awesomeField: "resend msg" };
 			
-			for(var i= 0 ; i < buffer.length ; ++i){
-				view.setUint8(8 + i, buffer[i]);
-			}
-			sendMsg(designBytes);
-			// Decode an Uint8Array (browser) or Buffer (node) to a message
-			var message = AwesomeMessage.decode(buffer);
-			// ... do something with message
-
-			// If the application uses length-delimited buffers, there is also encodeDelimited and decodeDelimited.
-
-			// Maybe convert the message back to a plain object
-			var object = AwesomeMessage.toObject(message, {
-				longs: String,
-				enums: String,
-				bytes: String,
-				// see ConversionOptions
-			});
-		});
+		}
 	</script>
-	
 	
 	<body>
 		<h2>Im Body</h2>
 		
-		<input value="click" text="click2Send" type="button" onclick="sendMsg()"/>
+		<input value="click" text="click2Send" type="button" onclick="test()"/>
 		
 	</body>
 
